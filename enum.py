@@ -9,6 +9,7 @@ def makeCollection(number):
 	return col
 
 
+
 """
 	Return the enumeration of the collection given in parameter
 	pre : students must have a even number of elements
@@ -18,25 +19,32 @@ def enum(students):
 	if (len(students) == 2):
 		return [[(students[0], students[1])]]
 	else:
-		res = []
+		res = [] # Collection containing all the lines
 
+		# we remove the first element
 		firstElement = students.pop(0)
 
 		for i in range (0, len(students)):
+
 			tmp_i = students.pop(i)
+			
+			lowerEnum = enum(students) # Call enum with the smaller collection of students (minus 2)
 
-			lowerEnum = enum(students)
+			newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
 
-			newTuple = (firstElement, tmp_i)
+			# Add the new tuple in each line of the lower enum
 			for line in (lowerEnum):
 				line.insert(0, newTuple)
 				res.append(line)
 
+
+			# Recompose the base collection
 			students.insert(i, tmp_i)	
 
 		students.insert(0, firstElement)
 			
 		return (res)
+			
 			
 
 
