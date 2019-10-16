@@ -1,4 +1,5 @@
 import timeit
+import sys
 
 
 def makeCollection(number):
@@ -51,8 +52,15 @@ def enum(students):
 
 def main():
 
+	try:
+		sys.argv[1]
+	except IndexError:
+		nb = 10
+	else:
+		nb = int(sys.argv[1])
+
 	# Creates the collection of students
-	nb = int(input("Enter the number of students (must be even) : "))
+	#nb = int(input("Enter the number of students (must be even) : "))
 	students = makeCollection(nb)
 	print ("Students :  " + str(students))
 
@@ -73,4 +81,5 @@ def main():
 	print ("Number of possibilities : " + str(len(res)))
 	print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
 
-main()
+if __name__ == "__main__":
+    main()
