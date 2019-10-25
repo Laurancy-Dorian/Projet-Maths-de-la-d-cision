@@ -1,5 +1,8 @@
 import timeit
 import sys
+import csv
+from collections import defaultdict
+
 
 
 def makeCollection(number):
@@ -10,12 +13,35 @@ def makeCollection(number):
 	return col
 
 
+"""
+	Load the data from CSV
+	return: a dict whose keys are the students id
+			ex : result["John"]["Marie"] = AB
+					==> This means John rated Marie 'AB'
+"""
+def loadDataFromCSV(path):
+	results = defaultdict(dict)
+
+	with open(path) as csvfile:
+		reader = csv.reader(csvfile)
+		students = next(reader)
+		for row in reader:
+			student = row[0]
+			i = 1
+			for column in row[1:] :
+
+				results [student][students[i]] = column
+
+				i+=1
+				
+	return results
+
 
 """
 	Return the enumeration of the collection given in parameter
 	pre : students must have a even number of elements
 """
-def enum(students):
+def enumeration(students):
 	# Base Case : The collections only contains 2 elements
 	if (len(students) == 2):
 		return [[(students[0], students[1])]]
@@ -29,7 +55,7 @@ def enum(students):
 
 			tmp_i = students.pop(i)
 			
-			lowerEnum = enum(students) # Call enum with the smaller collection of students (minus 2)
+			lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
 
 			newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
 
@@ -48,38 +74,67 @@ def enum(students):
 			
 			
 
-
+"""
+	Return a python list containing the best groups
+"""
+def bestGroups(preferences, enumeration) :
+	return enumeration
 
 def main():
 
-	try:
-		sys.argv[1]
-	except IndexError:
-		nb = 10
-	else:
-		nb = int(sys.argv[1])
+	"""
+		try:
+			sys.argv[1]
+		except IndexError:
+			nb = 12
+		else:
+			nb = int(sys.argv[1])
+	"""
 
+	# Max number of students
+	nbstudents = 10
+
+	# Get data from CSV
+	preferences = loadDataFromCSV("../DONNEES/preferencesIG4MD.csv") 
+	
+	# List of the students
+	students = list(preferences.keys())[0:nbstudents]
+	
+	
+	''' 
 	# Creates the collection of students
 	#nb = int(input("Enter the number of students (must be even) : "))
 	students = makeCollection(nb)
 	print ("Students :  " + str(students))
+	'''
 
 	# Will mesure the computation time
 	timestart = timeit.default_timer()
 
 	# Launch the enumeration algorithm
-	res = enum(students)
+	enum = enumeration(students)
 
 	timestop = timeit.default_timer()
 
+	"""
 	# Print the result if it isn't too big
 	if (nb <= 10) : 
 		for line in (res) :
 			print (line)
+	"""
 
 	# Additional stats		
-	print ("Number of possibilities : " + str(len(res)))
+	print ("Number of possibilities : " + str(len(enum)))
 	print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
+
+
+	# Selects the best groups
+	res = bestGroups(preferences, enum)
+
+
+	with open('CLR.csv', 'w') as myfile:
+		wr = csv.writer(myfile)
+		wr.writerow(res)
 
 if __name__ == "__main__":
     main()
