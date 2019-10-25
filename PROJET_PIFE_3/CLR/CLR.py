@@ -3,7 +3,7 @@ import sys
 import csv
 from collections import defaultdict
 
-
+criteria = ["TB", "B", "AB", "P", "I", "AR"]
 
 def makeCollection(number):
 	col = []
@@ -73,14 +73,35 @@ def enumeration(students):
 		return (res)
 			
 			
+def coupleIsAcceptable(couple, preferences, lvl) : 
+	student1 = couple[0]
+	student2 = couple[1]
+	pref12 = preferences[student1][student2]
+	pref21 = preferences[student2][student1]
+	return (pref12 in criteria[0:lvl]) and (pref21 in criteria[0:lvl])
 
 """
 	Return a python list containing the best groups
 """
 def bestGroups(preferences, enumeration) :
-	return enumeration
+	res = []
+	level=1
+	while (len(res) == 0 and level < len(criteria)) :
+		for line in enumeration :
+			lineAccepted = True
+
+			for couple in line :
+				if (not(coupleIsAcceptable(couple, preferences, level))) :
+					lineAccepted = False
+			if (lineAccepted) :
+				res.append(line)
+		level += 1
+
+	print (criteria[0:level])
+	return res
 
 def main():
+
 
 	"""
 		try:
@@ -92,7 +113,7 @@ def main():
 	"""
 
 	# Max number of students
-	nbstudents = 10
+	nbstudents = 16
 
 	# Get data from CSV
 	preferences = loadDataFromCSV("../DONNEES/preferencesIG4MD.csv") 
@@ -131,7 +152,8 @@ def main():
 	# Selects the best groups
 	res = bestGroups(preferences, enum)
 
-
+	print (len(res))
+	print (len(enum))
 	with open('CLR.csv', 'w') as myfile:
 		wr = csv.writer(myfile)
 		wr.writerow(res)
