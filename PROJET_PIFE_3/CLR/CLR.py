@@ -97,7 +97,7 @@ def bestGroups(preferences, enumeration) :
 				res.append(line)
 		level += 1
 
-	print (criteria[0:level])
+	#print (criteria[0:level])
 	return res
 
 def main():
@@ -145,15 +145,15 @@ def main():
 	"""
 
 	# Additional stats		
-	print ("Number of possibilities : " + str(len(enum)))
-	print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
+	#print ("Number of possibilities : " + str(len(enum)))
+	#print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
 
 
 	# Selects the best groups
 	res = bestGroups(preferences, enum)
 
-	print (len(res))
-	print (len(enum))
+	#print (len(res))
+	#print (len(enum))
 	with open('CLR.csv', 'w') as myfile:
 		wr = csv.writer(myfile)
 		wr.writerow(res)
