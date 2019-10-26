@@ -93,6 +93,7 @@ def bestGroups(preferences, enumeration) :
 			for couple in line :
 				if (not(coupleIsAcceptable(couple, preferences, level))) :
 					lineAccepted = False
+					break
 			if (lineAccepted) :
 				res.append(line)
 		level += 1
@@ -102,6 +103,8 @@ def bestGroups(preferences, enumeration) :
 
 def main():
 
+	filename = sys.argv[0]
+	filename = filename[:-3]
 
 	"""
 		try:
@@ -154,7 +157,7 @@ def main():
 
 	#print (len(res))
 	#print (len(enum))
-	with open('CLR.csv', 'w') as myfile:
+	with open(filename + '.csv', 'w') as myfile:
 		wr = csv.writer(myfile)
 		wr.writerow(res)
 
