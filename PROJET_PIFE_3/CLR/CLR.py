@@ -106,6 +106,12 @@ def main():
 	filename = sys.argv[0]
 	filename = filename[:-3]
 
+	ext = ""
+	for arg in sys.argv:
+		if (arg.find("--ext=") != -1) :
+			ext = arg[6:]
+	
+
 	"""
 		try:
 			sys.argv[1]
@@ -119,7 +125,7 @@ def main():
 	nbstudents = 16
 
 	# Get data from CSV
-	preferences = loadDataFromCSV("../DONNEES/preferencesIG4MD.csv") 
+	preferences = loadDataFromCSV("../DONNEES/preferences" + ext + ".csv") 
 	
 	# List of the students
 	students = list(preferences.keys())[0:nbstudents]
