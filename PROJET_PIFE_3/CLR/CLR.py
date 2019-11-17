@@ -5,6 +5,26 @@ from collections import defaultdict
 
 criteria = ["TB", "B", "AB", "P", "I", "AR"]
 
+"""
+	Exports the array in csv in format :
+		a b;c d;e f;
+		a c;b d;e f:
+		etc.
+
+"""
+def exportcsv(path, tab) :
+	with open(path, 'w', newline='') as myfile:
+		wr = csv.writer(myfile)
+
+		for line in tab :
+			tmptab = []
+			for grp in line : 
+				tmptab.append(grp[0] + " " + grp[1])
+			wr.writerow(tmptab)
+		
+
+	
+
 def makeCollection(number):
 	col = []
 	for i in range (number):
@@ -126,10 +146,9 @@ def main():
 
 	# Get data from CSV
 	preferences = loadDataFromCSV("../DONNEES/preferences" + ext + ".csv") 
-	
 	# List of the students
 	students = list(preferences.keys())[0:nbstudents]
-	
+
 	
 	''' 
 	# Creates the collection of students
@@ -163,9 +182,8 @@ def main():
 
 	#print (len(res))
 	#print (len(enum))
-	with open(filename + '.csv', 'w') as myfile:
-		wr = csv.writer(myfile)
-		wr.writerow(res)
+
+	exportcsv(filename + '.csv', res)
 
 if __name__ == "__main__":
     main()
