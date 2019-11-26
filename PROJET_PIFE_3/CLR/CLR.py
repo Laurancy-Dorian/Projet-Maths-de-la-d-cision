@@ -19,7 +19,12 @@ def exportcsv(path, tab) :
 		for line in tab :
 			tmptab = []
 			for grp in line : 
-				tmptab.append(grp[0] + " " + grp[1])
+				strcsv = ""
+				espace = ""
+				for eleve in grp :
+					strcsv = strcsv + espace + str(eleve)
+					espace = " "
+				tmptab.append(strcsv)
 			wr.writerow(tmptab)
 		
 
@@ -57,6 +62,8 @@ def loadDataFromCSV(path):
 	return results
 
 
+
+
 """
 	Return the enumeration of the collection given in parameter
 	pre : students must have a even number of elements
@@ -65,30 +72,64 @@ def enumeration(students):
 	# Base Case : The collections only contains 2 elements
 	if (len(students) == 2):
 		return [[(students[0], students[1])]]
+	elif (len(students) == 3):
+		return [[(students[0], students[1], students[2])]]
 	else:
 		res = [] # Collection containing all the lines
 
+		nb = len (students)
+
 		# we remove the first element
-		firstElement = students.pop(0)
 
-		for i in range (0, len(students)):
+		if (nb % 2 == 0) :
 
-			tmp_i = students.pop(i)
-			
-			lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
+			firstElement = students.pop(0)
 
-			newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
+			for i in range (0, len(students)):
 
-			# Add the new tuple in each line of the lower enum
-			for line in (lowerEnum):
-				line.insert(0, newTuple)
-				res.append(line)
+				tmp_i = students.pop(i)
+				
+				lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
+
+				newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
+
+				# Add the new tuple in each line of the lower enum
+				for line in (lowerEnum):
+					line.insert(0, newTuple)
+					res.append(line)
 
 
-			# Recompose the base collection
-			students.insert(i, tmp_i)	
+				# Recompose the base collection
+				students.insert(i, tmp_i)	
 
-		students.insert(0, firstElement)
+			students.insert(0, firstElement)
+		else :
+
+			for i in range (0, len(students)):
+				tmp_i = students.pop(i)
+
+				for j in range (i, len(students)):
+					tmp_j = students.pop(j)
+
+					for k in range (j, len(students)) :
+						tmp_k = students.pop(k)
+						lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
+
+						newTuple = (tmp_i, tmp_j, tmp_k) # Make a new group composed of the first element of the collection and the i^st element
+
+						# Add the new tuple in each line of the lower enum
+						for line in (lowerEnum):
+							line.insert(0, newTuple)
+							res.append(line)
+
+						# Recompose the base collection
+						students.insert(k, tmp_k)
+
+					# Recompose the base collection
+					students.insert(j, tmp_j)	
+
+				# Recompose the base collection
+				students.insert(i, tmp_i)	
 			
 		return (res)
 			
@@ -98,7 +139,16 @@ def coupleIsAcceptable(couple, preferences, lvl) :
 	student2 = couple[1]
 	pref12 = preferences[student1][student2]
 	pref21 = preferences[student2][student1]
-	return (pref12 in criteria[0:lvl]) and (pref21 in criteria[0:lvl])
+
+	for st1 in couple : 
+		for st2 in couple :
+			if (st1 != st2) :
+				if (preferences[st1][st2] not in criteria[0:lvl]) or (preferences[st2][st1] not in criteria[0:lvl]) :
+					print (lvl)
+					return False
+
+
+	return True
 
 """
 	Return a python list containing the best groups
@@ -165,13 +215,16 @@ def main():
 
 	timestop = timeit.default_timer()
 
-	"""
+	
 	# Print the result if it isn't too big
-	if (nb <= 10) : 
-		for line in (res) :
-			print (line)
-	"""
 
+	"""
+	for line in (enum) :
+		print (line)
+	print (len(enum))
+	"""
+	
+	
 	# Additional stats		
 	#print ("Number of possibilities : " + str(len(enum)))
 	#print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
@@ -179,9 +232,6 @@ def main():
 
 	# Selects the best groups
 	res = bestGroups(preferences, enum)
-
-	#print (len(res))
-	#print (len(enum))
 
 	exportcsv(filename + '.csv', res)
 
