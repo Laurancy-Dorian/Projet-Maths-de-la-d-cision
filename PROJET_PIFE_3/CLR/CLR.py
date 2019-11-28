@@ -5,6 +5,8 @@ from collections import defaultdict
 
 criteria = ["TB", "B", "AB", "P", "I", "AR"]
 
+# ===== CSV ===== #
+
 """
 	Exports the array in csv in format :
 		a b;c d;e f;
@@ -27,15 +29,6 @@ def exportcsv(path, tab) :
 				tmptab.append(strcsv)
 			wr.writerow(tmptab)
 		
-
-	
-
-def makeCollection(number):
-	col = []
-	for i in range (number):
-		col.append(i+1)
-
-	return col
 
 
 """
@@ -64,9 +57,38 @@ def loadDataFromCSV(path):
 
 
 
+
+# ===== ENUMERATION ===== #
+
 """
-	Return the enumeration of the collection given in parameter
-	pre : students must have a even number of elements
+	calculates the number of groups of 2 and 3 we can make with the number of students given in parameter
+	return : a set of tuple, the first case is the number of groups of 2 students and the second is the number a group of 3
+				ex : { (1, 3), (4, 1) } === 1 group of 2 and 3 groups of 3 OR 4 groups of 2 and 1 group of 3
+"""
+def nbGrp23 (n) :
+	if n < 2 :
+		return None
+	elif n == 2 :
+		return [(1,0)]
+	elif n == 3:
+		return [(0,1)]
+	else :
+		rec2 = nbGrp23 (n-2)
+		rec3 = nbGrp23 (n-3)
+
+		res = set()
+		if (rec2 != None) :
+			for line in rec2 :
+				res.add((line[0]+1,line[1]))
+		if (rec3 != None) :
+			for line in rec3 :
+				res.add((line[0],line[1]+1))
+
+		return res
+
+
+"""
+	Return the enumeration of 2 and 3 students of the collection given in parameter
 """
 def enumeration(students):
 	# Base Case : The collections only contains 2 elements
@@ -79,61 +101,69 @@ def enumeration(students):
 
 		nb = len (students)
 
-		# we remove the first element
+		# Get the number of groups of 2 students and groups of 3 
+		nb23 = nbGrp23(nb)
 
-		if (nb % 2 == 0) :
+		for possibility in (nb23) :
 
-			firstElement = students.pop(0)
+			if (possibility[0] > 0) :
 
-			for i in range (0, len(students)):
+				firstElement = students.pop(0)
 
-				tmp_i = students.pop(i)
-				
-				lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
+				for i in range (0, len(students)):
 
-				newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
+					tmp_i = students.pop(i)
+					
+					lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
 
-				# Add the new tuple in each line of the lower enum
-				for line in (lowerEnum):
-					line.insert(0, newTuple)
-					res.append(line)
+					newTuple = (firstElement, tmp_i) # Make a new group composed of the first element of the collection and the i^st element
+
+					# Add the new tuple in each line of the lower enum
+					for line in (lowerEnum):
+						line.insert(0, newTuple)
+						res.append(line)
 
 
-				# Recompose the base collection
-				students.insert(i, tmp_i)	
+					# Recompose the base collection
+					students.insert(i, tmp_i)	
 
-			students.insert(0, firstElement)
-		else :
+				students.insert(0, firstElement)
 
-			for i in range (0, len(students)):
-				tmp_i = students.pop(i)
+			if (possibility[1] > 0) :
 
-				for j in range (i, len(students)):
-					tmp_j = students.pop(j)
+				firstElement = students.pop(0)
 
-					for k in range (j, len(students)) :
-						tmp_k = students.pop(k)
+				for i in range (0, len(students)):
+					tmp_i = students.pop(i)
+					for j in range (i, len(students)) :
+						tmp_j = students.pop(j)
 						lowerEnum = enumeration(students) # Call enum with the smaller collection of students (minus 2)
 
-						newTuple = (tmp_i, tmp_j, tmp_k) # Make a new group composed of the first element of the collection and the i^st element
+						newTuple = (firstElement,tmp_i, tmp_j) # Make a new group composed of the first element of the collection and the i^st element
 
 						# Add the new tuple in each line of the lower enum
 						for line in (lowerEnum):
 							line.insert(0, newTuple)
 							res.append(line)
 
-						# Recompose the base collection
-						students.insert(k, tmp_k)
+						students.insert(j, tmp_j)
+
 
 					# Recompose the base collection
-					students.insert(j, tmp_j)	
+					students.insert(i, tmp_i)
 
-				# Recompose the base collection
-				students.insert(i, tmp_i)	
+				students.insert(0, firstElement)
 			
 		return (res)
 			
-			
+
+
+# ===== GROUP SELECTION ===== #
+
+"""
+	Return true if the group is considered acceptable : each member of the group voted each other member at least the worst criteria defined by lvl 
+	lvl : 0 = TB, 1 = B, 2 = AB ... 
+"""			
 def coupleIsAcceptable(couple, preferences, lvl) : 
 	student1 = couple[0]
 	student2 = couple[1]
@@ -144,7 +174,6 @@ def coupleIsAcceptable(couple, preferences, lvl) :
 		for st2 in couple :
 			if (st1 != st2) :
 				if (preferences[st1][st2] not in criteria[0:lvl]) or (preferences[st2][st1] not in criteria[0:lvl]) :
-					print (lvl)
 					return False
 
 
@@ -168,9 +197,13 @@ def bestGroups(preferences, enumeration) :
 				res.append(line)
 		level += 1
 
-	#print (criteria[0:level])
 	return res
 
+
+
+
+
+# ===== MAIN ===== #
 def main():
 
 	filename = sys.argv[0]
@@ -182,53 +215,17 @@ def main():
 			ext = arg[6:]
 	
 
-	"""
-		try:
-			sys.argv[1]
-		except IndexError:
-			nb = 12
-		else:
-			nb = int(sys.argv[1])
-	"""
-
 	# Max number of students
 	nbstudents = 16
 
 	# Get data from CSV
 	preferences = loadDataFromCSV("../DONNEES/preferences" + ext + ".csv") 
+
 	# List of the students
 	students = list(preferences.keys())[0:nbstudents]
 
-	
-	''' 
-	# Creates the collection of students
-	#nb = int(input("Enter the number of students (must be even) : "))
-	students = makeCollection(nb)
-	print ("Students :  " + str(students))
-	'''
-
-	# Will mesure the computation time
-	timestart = timeit.default_timer()
-
 	# Launch the enumeration algorithm
 	enum = enumeration(students)
-
-	timestop = timeit.default_timer()
-
-	
-	# Print the result if it isn't too big
-
-	"""
-	for line in (enum) :
-		print (line)
-	print (len(enum))
-	"""
-	
-	
-	# Additional stats		
-	#print ("Number of possibilities : " + str(len(enum)))
-	#print('Time: ', str(round(timestop - timestart, 4)) + " seconds")  
-
 
 	# Selects the best groups
 	res = bestGroups(preferences, enum)
